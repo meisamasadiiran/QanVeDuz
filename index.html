@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Music — Personal Library</title>
+<meta name="description" content="A minimal personal music archive. Listen, download, keep the sound.">
+<meta name="theme-color" content="#20201D">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="index,follow">
+
+<meta property="og:title" content="Music — Personal Library">
+<meta property="og:description" content="Listen. Download. Keep the sound.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2320201D'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23C95A3D'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600&display=swap">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Music library home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">MUSIC</span>
+    </a>
+
+    <button class="icon-btn" id="searchToggle" type="button" aria-label="Search" aria-expanded="false" aria-controls="searchBar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    </button>
+  </header>
+
+  <!-- ============ SEARCH ============ -->
+  <div class="search-bar" id="searchBar" hidden>
+    <form role="search" class="search" onsubmit="return false">
+      <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <input id="searchInput" class="search__input" type="search" inputmode="search" autocomplete="off"
+             placeholder="Search title or artist" aria-label="Search title or artist">
+      <button class="search__clear" id="searchClear" type="button" aria-label="Clear search" hidden>&times;</button>
+    </form>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <h1 class="hero__title">MY MUSIC</h1>
+    <p class="hero__lead">Listen. Download. Keep the sound.</p>
+  </section>
+
+  <!-- ============ FILTERS ============ -->
+  <nav class="filters" id="filters" aria-label="Filter library">
+    <button class="chip is-active" type="button" data-filter="all">ALL <span class="chip__count" data-count="all"></span></button>
+    <button class="chip" type="button" data-filter="single">SINGLES <span class="chip__count" data-count="single"></span></button>
+    <button class="chip" type="button" data-filter="album">ALBUMS <span class="chip__count" data-count="album"></span></button>
+  </nav>
+
+  <!-- ============ TRACK LIST ============ -->
+  <main>
+    <h2 class="sr-only">Tracks</h2>
+    <ul class="track-list" id="trackList"></ul>
+
+    <p class="empty" id="emptyState" hidden>No results. Try another title or artist.</p>
+
+    <footer class="site-footer">
+      <span id="libraryCount"></span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>Personal archive</span>
+    </footer>
+  </main>
+</div>
+
+<!-- ============ MINI PLAYER ============ -->
+<section class="mini-player" id="miniPlayer" aria-label="Now playing" hidden>
+  <div class="mini-player__progress" id="miniProgress" role="progressbar" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <span class="mini-player__progress-fill" id="miniProgressFill"></span>
+  </div>
+
+  <button class="mini-player__open" id="miniOpen" type="button" aria-label="Open full player">
+    <img class="mini-cover" id="miniCover" alt="" width="48" height="48">
+    <span class="mini-meta">
+      <span class="mini-title" id="miniTitle">—</span>
+      <span class="mini-artist" id="miniArtist">—</span>
+    </span>
+  </button>
+
+  <div class="mini-player__actions">
+    <button class="icon-btn" id="miniPlay" type="button" aria-label="Play">
+      <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 20 12 7 19.5z"/></svg>
+      <svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4.5h3.2v15H7.5zM13.3 4.5h3.2v15h-3.2z"/></svg>
+    </button>
+    <a class="icon-btn download" id="miniDownload" download aria-label="Download" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10.5"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ FULL PLAYER ============ -->
+<section class="full-player" id="fullPlayer" role="dialog" aria-modal="true" aria-label="Full player" hidden>
+  <div class="full-player__inner">
+
+    <div class="full-player__top">
+      <button class="icon-btn" id="fpClose" type="button" aria-label="Close player">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="full-player__label" id="fpLabel">NOW PLAYING</span>
+      <span class="full-player__spacer" aria-hidden="true"></span>
+    </div>
+
+    <div class="fp-cover-wrap">
+      <img class="fp-cover" id="fpCover" alt="">
+    </div>
+
+    <div class="fp-meta">
+      <h2 class="fp-title" id="fpTitle">—</h2>
+      <p class="fp-artist" id="fpArtist">—</p>
+      <p class="fp-note" id="fpNote" hidden></p>
+    </div>
+
+    <div class="fp-progress">
+      <div class="bar" id="fpBar" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="bar__fill" id="fpFill"><span class="bar__knob"></span></span>
+      </div>
+      <div class="fp-times">
+        <time id="fpCurrent">0:00</time>
+        <time id="fpDuration">0:00</time>
+      </div>
+    </div>
+
+    <div class="fp-controls">
+      <button class="icon-btn ctrl" id="fpPrev" type="button" aria-label="Previous track">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13"/><path d="M19 6 9.5 12 19 18z"/></svg>
+      </button>
+      <button class="play-main" id="fpPlay" type="button" aria-label="Play">
+        <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 20 12 8 19z"/></svg>
+        <svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3.4v14H8zM13.6 5H17v14h-3.4z"/></svg>
+      </button>
+      <button class="icon-btn ctrl" id="fpNext" type="button" aria-label="Next track">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5.5v13"/><path d="M5 6l9.5 6L5 18z"/></svg>
+      </button>
+    </div>
+
+    <a class="download-btn" id="fpDownload" download hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10.5"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg>
+      <span>DOWNLOAD</span>
+    </a>
+
+  </div>
+</section>
+
+<audio id="audio" preload="metadata"></audio>
+
+<!-- Track data: edit js/tracks.js to add songs -->
+<script src="js/tracks.js"></script>
+<script src="js/audio-engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
