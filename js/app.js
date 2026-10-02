@@ -12,7 +12,7 @@
 
   var I18N = {
     en: {
-      heroTitle: "MY MUSIC",
+      heroTitle: "iZ Music",
       heroLead: "Listen. Download. Keep the sound.",
       filterAll: "ALL", filterSingle: "SINGLES", filterAlbum: "ALBUMS",
       searchPh: "Search title or artist",
@@ -26,7 +26,7 @@
       tracksOne: "1 track", tracksMany: "%d tracks"
     },
     fa: {
-      heroTitle: "موسیقی من",
+      heroTitle: "iZ Music",
       heroLead: "گوش کن، دانلود کن، صدا را نگه دار.",
       filterAll: "همه", filterSingle: "تک‌آهنگ‌ها", filterAlbum: "آلبوم‌ها",
       searchPh: "جست‌وجوی عنوان یا هنرمند",

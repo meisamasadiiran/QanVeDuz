@@ -149,21 +149,22 @@ html[lang="fa"] .fp-artist{font-family:inherit}
 
 /* ---------- credit ---------- */
 .credit{
-  padding:26px 4px 4px;
+  padding:22px 4px 2px;
   text-align:center;
 }
 .credit__fa{
   margin:0;
-  color:var(--soft);
+  color:#6E6C67;
   font-family:"Shabnam","Vazirmatn",system-ui,Tahoma,sans-serif;
-  font-size:12.5px;
-  line-height:2.1;
+  font-size:10.5px;
+  font-weight:400;
+  line-height:2;
 }
 .credit__en{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:10.5px;
-  letter-spacing:.08em;
+  margin:5px 0 0;
+  color:#57554F;
+  font-size:9px;
+  letter-spacing:.06em;
 }
 
 /* ---------- icon buttons ---------- */

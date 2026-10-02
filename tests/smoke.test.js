@@ -227,7 +227,7 @@ function click(elm) {
   click($("#langToggle"));
   await sleep(0);
   assert(document.documentElement.lang === "fa" && document.documentElement.dir === "rtl", "fa mode sets lang=fa dir=rtl");
-  assert($(".hero__title").textContent === "موسیقی من", "hero title translated");
+  assert($(".hero__title").textContent === "iZ Music", "hero title is the brand (iZ Music) in fa too");
   assert($('[data-filter="single"] [data-i18n]').textContent === "تک‌آهنگ‌ها", "filter labels translated");
   assert($("#searchInput").getAttribute("placeholder").includes("جست‌وجو"), "search placeholder translated");
   assert($("#libraryCount").textContent.includes("آهنگ"), "footer count translated");
@@ -235,7 +235,7 @@ function click(elm) {
   assert($(".credit__en").textContent.includes("Meisam Asadi"), "credit names Meisam Asadi (en)");
   click($("#langToggle"));
   await sleep(0);
-  assert($(".hero__title").textContent === "MY MUSIC" && document.documentElement.dir === "ltr", "back to en/ltr");
+  assert($(".hero__title").textContent === "iZ Music" && document.documentElement.dir === "ltr", "back to en/ltr");
 
   console.log("");
   if (errors.length) {
