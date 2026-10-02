@@ -11,19 +11,21 @@ file, open the full player — nothing more. No accounts, no ads, no backend.
 ```
 /
 ├── index.html
+├── admin.html           ← "Studio": publish/delete songs from the phone browser
+├── library.json         ← the track list (Studio edits it; site reads it)
 ├── style.css
 ├── js/
-│   ├── tracks.js        ← your library (edit this to add songs)
 │   ├── audio-engine.js  ← playback logic
 │   └── app.js           ← UI logic
 ├── assets/
 │   ├── audio/           ← mp3 / wav / flac files
 │   └── covers/          ← square jpg / png / webp artwork
 ├── scripts/
-│   ├── build-tracks.py  ← demo content + tracks.js generator
+│   ├── build-tracks.py  ← demo content + library.json generator
 │   └── serve.py         ← local dev server with Range support
 └── tests/
-    └── smoke.test.js    ← functional UI test (jsdom)
+    ├── smoke.test.js    ← functional UI test (jsdom)
+    └── admin.test.js    ← Studio publish/delete flow vs mocked GitHub API
 ```
 
 ## Run it locally
@@ -35,21 +37,36 @@ python3 scripts/serve.py          # → http://localhost:8080
 (any static server works; `serve.py` adds HTTP Range support so audio
 seeking behaves the same as on Cloudflare/GitHub Pages)
 
-## Add a song
+## Add a song — Studio (no computer needed)
 
-Open `js/tracks.js` and push one object:
+Open `https://<your-pages-url>/admin.html` on the phone:
 
-```js
+1. Paste a personal access token once (fine-grained, **Contents: Read and
+   write** on this repo only). It is stored only in that browser's
+   localStorage.
+2. Pick the audio file (+ optional cover), write title/artist, press
+   **انتشار در سایت**.
+3. Studio commits the file(s) and updates `library.json` through the GitHub
+   API; the site shows the new track ~1 minute later.
+
+The same page lists published tracks and deletes them (transparent commits,
+visible in the repo history).
+
+## Add a song — manually
+
+Edit `library.json` (array of objects) and commit:
+
+```json
 {
-  title:    "Track Name",
-  artist:   "Artist Name",
-  cover:    "assets/covers/track-01.jpg",
-  audio:    "assets/audio/track-01.mp3",     // mp3 / wav / flac
-  download: "assets/audio/track-01.mp3",     // "" hides the download button
-  duration: "03:42",                         // optional, read from file if omitted
-  category: "single",                        // "single" | "album"
-  meta:     "Single · 2026",                 // optional small label
-  note:     "One line about the track."      // optional, full player only
+  "title": "Track Name",
+  "artist": "Artist Name",
+  "cover": "assets/covers/track-01.jpg",
+  "audio": "assets/audio/track-01.mp3",
+  "download": "assets/audio/track-01.mp3",
+  "duration": "03:42",
+  "category": "single",
+  "meta": "Single · 2026",
+  "note": "One line about the track."
 }
 ```
 

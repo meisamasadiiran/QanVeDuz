@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio — مدیریت موزیک</title>
+<meta name="theme-color" content="#20201D">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2320201D'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23C95A3D'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&family=Inter:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  body{font-family:"Vazirmatn","Inter",system-ui,sans-serif}
+  .studio{max-width:560px;margin:0 auto;padding:20px 18px 80px}
+  .studio__head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px}
+  .studio__title{font-size:20px;font-weight:700;letter-spacing:0}
+  .studio__title small{color:var(--muted);font-weight:500;font-size:12px;margin-inline-start:8px}
+  .card{background:var(--surface);border-radius:var(--radius);padding:18px;margin-top:16px}
+  .card h2{margin:0 0 4px;font-size:15px;font-weight:600}
+  .card p.hint{margin:0 0 14px;color:var(--muted);font-size:12.5px;line-height:1.9}
+  label{display:block;margin:12px 0 6px;color:var(--soft);font-size:12.5px}
+  input[type=text],select,textarea{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:12px;color:var(--fg);padding:12px 14px;font:inherit;font-size:14px;outline:none;
+  }
+  input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  input[type=file]{
+    display:block;width:100%;color:var(--soft);font-size:13px;
+    background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;
+    padding:12px;margin-top:6px;
+  }
+  input[type=file]::file-selector-button{
+    background:var(--surface-3);color:var(--fg);border:0;border-radius:9px;
+    padding:8px 14px;margin-inline-end:10px;font:inherit;font-size:12.5px;cursor:pointer;
+  }
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;min-height:50px;margin-top:18px;border-radius:14px;
+    background:var(--accent);color:#20201D;font-weight:700;font-size:14px;letter-spacing:.02em;
+    transition:background .18s var(--ease);
+  }
+  .btn:hover{background:#D9684A}
+  .btn:disabled{opacity:.45;pointer-events:none}
+  .btn--ghost{background:var(--surface-2);color:var(--soft);font-weight:600}
+  .btn--ghost:hover{background:var(--surface-3);color:var(--fg)}
+  .btn--danger{background:transparent;color:#C95A3D;border:1px solid var(--line);min-height:40px;margin:0;width:auto;padding:0 14px;border-radius:10px;font-size:12px}
+  .log{
+    margin-top:16px;background:#1B1B18;border-radius:12px;padding:12px 14px;
+    color:var(--soft);font-size:12px;line-height:2;min-height:24px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;direction:ltr;text-align:left;
+    white-space:pre-wrap;word-break:break-all;max-height:220px;overflow:auto;
+  }
+  .log .ok{color:#8FBF6F}.log .err{color:#D9684A}.log .dim{color:var(--muted)}
+  .manage{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  .manage li{
+    display:flex;align-items:center;gap:10px;background:var(--surface-2);
+    border-radius:12px;padding:10px 12px;font-size:13px;
+  }
+  .manage li .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .manage li .d{color:var(--muted);font-size:11px;flex:none}
+  .token-row{display:flex;gap:8px}
+  .token-row input{flex:1;direction:ltr;text-align:left;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  .token-row .btn{width:auto;margin:0;padding:0 18px;min-height:46px}
+  .who{color:var(--soft);font-size:12.5px}
+  .who b{color:var(--fg)}
+  a.back{color:var(--muted);font-size:12.5px;text-decoration:none}
+  a.back:hover{color:var(--fg)}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="studio">
+
+  <div class="studio__head">
+    <span class="studio__title">Studio <small>انتشار موزیک</small></span>
+    <a class="back" href="./">← بازگشت به سایت</a>
+  </div>
+
+  <!-- ---------- connect ---------- -->
+  <section class="card" id="connectCard">
+    <h2>اتصال به گیت‌هاب</h2>
+    <p class="hint">
+      توکن شخصیِ خودت را یک‌بار این‌جا بگذار؛ فقط روی همین گوشی ذخیره می‌شود
+      (localStorage) و برای commit مستقیمِ فایل‌ها داخل مخزن استفاده می‌شود.
+      دسترسی لازم: فقط <b>Contents: Read and write</b> روی همین یک مخزن.
+    </p>
+    <div class="token-row">
+      <input id="tokenInput" type="password" placeholder="github_pat_… یا ghp_…" autocomplete="off">
+      <button class="btn" id="connectBtn" type="button">اتصال</button>
+    </div>
+    <div class="log" id="connectLog" hidden></div>
+  </section>
+
+  <!-- ---------- publish ---------- -->
+  <section class="card" id="publishCard" hidden>
+    <h2>انتشار آهنگ جدید</h2>
+    <p class="hint">فایل را انتخاب کن، اطلاعات را بنویس و «انتشار» را بزن.
+      فایل مستقیم به مخزن می‌رود و سایت حدود یک دقیقه بعد آن را نشان می‌دهد.</p>
+
+    <span class="who" id="whoami"></span>
+
+    <label for="fTitle">عنوان آهنگ *</label>
+    <input id="fTitle" type="text" placeholder="مثلاً: شبِ تهران">
+
+    <label for="fArtist">نام هنرمند *</label>
+    <input id="fArtist" type="text" placeholder="مثلاً: میثم اسدی">
+
+    <label for="fCategory">دسته</label>
+    <select id="fCategory">
+      <option value="single">Single</option>
+      <option value="album">Album</option>
+    </select>
+
+    <label for="fAudio">فایل صوتی * (mp3 / wav / flac)</label>
+    <input id="fAudio" type="file" accept="audio/*,.mp3,.wav,.flac,.m4a,.ogg">
+
+    <label for="fCover">کاور (اختیاری — jpg/png مربع)</label>
+    <input id="fCover" type="file" accept="image/*">
+
+    <label for="fNote">یادداشت (اختیاری)</label>
+    <input id="fNote" type="text" placeholder="یک خط دربارهٔ این آهنگ">
+
+    <button class="btn" id="publishBtn" type="button">انتشار در سایت</button>
+    <div class="log" id="publishLog" hidden></div>
+  </section>
+
+  <!-- ---------- manage ---------- -->
+  <section class="card" id="manageCard" hidden>
+    <h2>آهنگ‌های منتشرشده</h2>
+    <p class="hint">حذف = حذف فایل از مخزن + حذف از لیست سایت (با commit شفاف).</p>
+    <ul class="manage" id="manageList"></ul>
+    <button class="btn btn--ghost" id="disconnectBtn" type="button">خروج و پاک‌کردن توکن از این گوشی</button>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var REPO = "meisamasadiiran/QanVeDuz";
+  var $ = function (s) { return document.querySelector(s); };
+
+  var els = {
+    connectCard: $("#connectCard"), connectBtn: $("#connectBtn"),
+    tokenInput: $("#tokenInput"), connectLog: $("#connectLog"),
+    publishCard: $("#publishCard"), manageCard: $("#manageCard"),
+    who: $("#whoami"),
+    fTitle: $("#fTitle"), fArtist: $("#fArtist"), fCategory: $("#fCategory"),
+    fAudio: $("#fAudio"), fCover: $("#fCover"), fNote: $("#fNote"),
+    publishBtn: $("#publishBtn"), publishLog: $("#publishLog"),
+    manageList: $("#manageList"), disconnectBtn: $("#disconnectBtn")
+  };
+
+  var token = localStorage.getItem("gh_token") || "";
+  var library = [];          // current library.json content
+  var libSha = null;         // not needed for base_tree commits, kept for info
+
+  /* ------------------------------------------------ helpers */
+
+  function log(box, msg, cls) {
+    box.hidden = false;
+    var line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    box.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function clearLog(box) { box.innerHTML = ""; box.hidden = true; }
+
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({
+      "Authorization": "Bearer " + token,
+      "Accept": "application/vnd.github+json",
+      "Content-Type": "application/json"
+    }, opts.headers || {});
+    return fetch("https://api.github.com/" + path, opts).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          var msg = (body && body.message) || ("HTTP " + res.status);
+          throw new Error(msg);
+        }
+        return body;
+      });
+    });
+  }
+
+  function fileToBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(",")[1] || ""); };
+      r.onerror = function () { reject(new Error("خواندن فایل ناموفق بود")); };
+      r.readAsDataURL(file);
+    });
+  }
+
+  function utf8Base64(str) {
+    var bytes = new TextEncoder().encode(str);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+
+  function b64ToUtf8(b64) {
+    var bin = atob(b64.replace(/\n/g, ""));
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function slugify(text) {
+    return String(text || "").toLowerCase().trim()
+      .replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "") || "track";
+  }
+
+  function extOf(name, fallback) {
+    var m = /\.([a-z0-9]+)$/i.exec(name || "");
+    return m ? "." + m[1].toLowerCase() : fallback;
+  }
+
+  function readDuration(file) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var a = new Audio();
+      var done = function (sec) { URL.revokeObjectURL(url); resolve(sec); };
+      var timer = setTimeout(function () { done(0); }, 4000);
+      a.addEventListener("loadedmetadata", function () {
+        clearTimeout(timer);
+        done(isFinite(a.duration) ? Math.round(a.duration) : 0);
+      });
+      a.addEventListener("error", function () { clearTimeout(timer); done(0); });
+      a.src = url;
+    });
+  }
+
+  function mmss(sec) {
+    sec = Math.max(0, Math.round(sec || 0));
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+  }
+
+  /* ------------------------------------------------ git data api commit */
+
+  /** Create one commit on main that adds/overwrites/deletes the given paths.
+      entries: [{path, base64|null}]  (base64 null => delete)                 */
+  function commitChanges(entries, message, logBox) {
+    log(logBox, "» reading refs/heads/main …", "dim");
+    return api("repos/" + REPO + "/git/refs/heads/main")
+      .then(function (ref) {
+        var headSha = ref.object.sha;
+        return api("repos/" + REPO + "/git/commits/" + headSha)
+          .then(function (commit) { return { headSha: headSha, baseTree: commit.tree.sha }; });
+      })
+      .then(function (ctx) {
+        var chain = Promise.resolve([]);
+        // create a blob per added file
+        chain = chain.then(function (treeEntries) {
+          return entries.reduce(function (p, entry) {
+            return p.then(function (list) {
+              if (entry.base64 === null) {
+                list.push({ path: entry.path, mode: "100644", type: "blob", sha: null });
+                return list;
+              }
+              log(logBox, "» uploading " + entry.path + " …", "dim");
+              return api("repos/" + REPO + "/git/blobs", {
+                method: "POST",
+                body: JSON.stringify({ content: entry.base64, encoding: "base64" })
+              }).then(function (blob) {
+                list.push({ path: entry.path, mode: "100644", type: "blob", sha: blob.sha });
+                return list;
+              });
+            });
+          }, Promise.resolve([]));
+        });
+        return chain.then(function (treeEntries) {
+          log(logBox, "» creating tree & commit …", "dim");
+          return api("repos/" + REPO + "/git/trees", {
+            method: "POST",
+            body: JSON.stringify({ base_tree: ctx.baseTree, tree: treeEntries })
+          }).then(function (tree) {
+            return api("repos/" + REPO + "/git/commits", {
+              method: "POST",
+              body: JSON.stringify({ message: message, tree: tree.sha, parents: [ctx.headSha] })
+            });
+          }).then(function (commit) {
+            return api("repos/" + REPO + "/git/refs/heads/main", {
+              method: "PATCH",
+              body: JSON.stringify({ sha: commit.sha })
+            });
+          });
+        });
+      });
+  }
+
+  /* ------------------------------------------------ connect */
+
+  function enterStudio(login) {
+    els.connectCard.hidden = true;
+    els.publishCard.hidden = false;
+    els.manageCard.hidden = false;
+    els.who.innerHTML = "متصل به‌عنوان <b dir='ltr'>" + login + "</b>";
+    refreshLibrary();
+  }
+
+  function connect() {
+    clearLog(els.connectLog);
+    var t = els.tokenInput.value.trim() || token;
+    if (!t) { log(els.connectLog, "توکن را وارد کن.", "err"); return; }
+    token = t;
+    log(els.connectLog, "» verifying token …", "dim");
+    Promise.all([
+      fetch("https://api.github.com/user", { headers: { Authorization: "Bearer " + token } })
+        .then(function (r) { return r.json(); }),
+      api("repos/" + REPO)
+    ]).then(function (parts) {
+      var user = parts[0], repo = parts[1];
+      if (!user.login) throw new Error("توکن معتبر نیست");
+      if (!repo.permissions || !repo.permissions.push) throw new Error("توکن دسترسی write روی این مخزن ندارد");
+      localStorage.setItem("gh_token", token);
+      log(els.connectLog, "✓ connected as " + user.login, "ok");
+      enterStudio(user.login);
+    }).catch(function (e) {
+      log(els.connectLog, "✗ " + e.message, "err");
+    });
+  }
+
+  /* ------------------------------------------------ library refresh */
+
+  function refreshLibrary() {
+    return api("repos/" + REPO + "/contents/library.json")
+      .then(function (f) {
+        library = JSON.parse(b64ToUtf8(f.content));
+        libSha = f.sha;
+        renderManage();
+      })
+      .catch(function (e) {
+        library = [];
+        renderManage();
+        log(els.publishLog, "✗ library.json: " + e.message, "err");
+      });
+  }
+
+  function renderManage() {
+    els.manageList.innerHTML = "";
+    library.forEach(function (t, i) {
+      var li = document.createElement("li");
+      var title = document.createElement("span");
+      title.className = "t";
+      title.textContent = t.title + " — " + t.artist;
+      var dur = document.createElement("span");
+      dur.className = "d";
+      dur.textContent = t.duration || "";
+      var del = document.createElement("button");
+      del.className = "btn--danger btn";
+      del.type = "button";
+      del.textContent = "حذف";
+      del.addEventListener("click", function () { removeTrack(i, del); });
+      li.appendChild(title); li.appendChild(dur); li.appendChild(del);
+      els.manageList.appendChild(li);
+    });
+  }
+
+  /* ------------------------------------------------ publish */
+
+  function publish() {
+    clearLog(els.publishLog);
+    var title = els.fTitle.value.trim();
+    var artist = els.fArtist.value.trim();
+    var audioFile = els.fAudio.files[0];
+    if (!title || !artist) { log(els.publishLog, "عنوان و هنرمند الزامی است.", "err"); return; }
+    if (!audioFile) { log(els.publishLog, "فایل صوتی را انتخاب کن.", "err"); return; }
+
+    els.publishBtn.disabled = true;
+
+    var slug = slugify(title);
+    library.forEach(function (t) {           // avoid path collisions
+      if (t.audio && t.audio.indexOf(slug + ".") > -1) slug += "-" + Date.now().toString(36);
+    });
+    var audioPath = "assets/audio/" + slug + extOf(audioFile.name, ".mp3");
+    var coverFile = els.fCover.files[0];
+    var coverPath = coverFile ? "assets/covers/" + slug + extOf(coverFile.name, ".jpg") : "";
+
+    log(els.publishLog, "» reading files on device …", "dim");
+
+    Promise.all([
+      fileToBase64(audioFile),
+      coverFile ? fileToBase64(coverFile) : Promise.resolve(null),
+      readDuration(audioFile)
+    ]).then(function (parts) {
+      var audioB64 = parts[0], coverB64 = parts[1], seconds = parts[2];
+
+      var entry = {
+        title: title,
+        artist: artist,
+        cover: coverPath,
+        audio: audioPath,
+        download: audioPath,
+        duration: mmss(seconds),
+        category: els.fCategory.value,
+        meta: els.fCategory.value === "album" ? "Album" : "Single",
+        note: els.fNote.value.trim()
+      };
+      var newLib = library.concat([entry]);
+
+      var changes = [
+        { path: audioPath, base64: audioB64 },
+        { path: "library.json", base64: utf8Base64(JSON.stringify(newLib, null, 2) + "\n") }
+      ];
+      if (coverB64) changes.splice(1, 0, { path: coverPath, base64: coverB64 });
+
+      return commitChanges(changes, "add: " + title, els.publishLog);
+    }).then(function () {
+      log(els.publishLog, "✓ منتشر شد! سایت تا ~۱ دقیقهٔ دیگر آن را نشان می‌دهد.", "ok");
+      log(els.publishLog, "https://meisamasadiiran.github.io/QanVeDuz/", "ok");
+      els.fTitle.value = els.fArtist.value = els.fNote.value = "";
+      els.fAudio.value = ""; els.fCover.value = "";
+      return refreshLibrary();
+    }).catch(function (e) {
+      log(els.publishLog, "✗ " + e.message, "err");
+    }).then(function () {
+      els.publishBtn.disabled = false;
+    });
+  }
+
+  /* ------------------------------------------------ delete */
+
+  function removeTrack(index, btn) {
+    var t = library[index];
+    if (!t) return;
+    if (!confirm("«" + t.title + "» برای همیشه از مخزن و سایت حذف شود؟")) return;
+    btn.disabled = true;
+    var newLib = library.filter(function (_, i) { return i !== index; });
+    var changes = [
+      { path: t.audio, base64: null },
+      { path: "library.json", base64: utf8Base64(JSON.stringify(newLib, null, 2) + "\n") }
+    ];
+    if (t.cover) changes.splice(1, 0, { path: t.cover, base64: null });
+
+    commitChanges(changes, "remove: " + t.title, els.publishLog)
+      .then(function () {
+        log(els.publishLog, "✓ حذف شد: " + t.title, "ok");
+        return refreshLibrary();
+      })
+      .catch(function (e) { log(els.publishLog, "✗ " + e.message, "err"); })
+      .then(function () { btn.disabled = false; });
+  }
+
+  /* ------------------------------------------------ wiring */
+
+  els.connectBtn.addEventListener("click", connect);
+  els.tokenInput.addEventListener("keydown", function (e) { if (e.key === "Enter") connect(); });
+  els.publishBtn.addEventListener("click", publish);
+  els.disconnectBtn.addEventListener("click", function () {
+    localStorage.removeItem("gh_token");
+    location.reload();
+  });
+
+  if (token) {
+    els.tokenInput.value = token;
+    connect();   // silent reconnect with the stored token
+  }
+})();
+</script>
+</body>
+</html>

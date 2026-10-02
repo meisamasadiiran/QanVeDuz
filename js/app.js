@@ -10,8 +10,6 @@
 
   /* ---------------------------------------------------------------- data */
 
-  var rawTracks = Array.isArray(window.TRACKS) ? window.TRACKS : [];
-
   /** "3:42" | "03:42" | "1:02:10" | 222 -> "MM:SS" style string. */
   function formatTime(input) {
     var sec;
@@ -56,7 +54,7 @@
     return t;
   }
 
-  var ALL = rawTracks.map(normalise).filter(function (t) { return !!t.audio; });
+  var ALL = [];   // filled by bootstrap() after library.json loads
 
   /* --------------------------------------------------------------- state */
 
@@ -121,7 +119,6 @@
   );
 
   var engine = new AudioEngine(el.audio);
-  engine.setPlaylist(ALL);
 
   /* ------------------------------------------------------- small helpers */
 
@@ -629,9 +626,33 @@
 
   /* --------------------------------------------------------------- init */
 
-  renderCounts();
-  setFilter("all");
-  openFromHash();
+  function bootstrap(list) {
+    ALL = (Array.isArray(list) ? list : [])
+      .map(normalise)
+      .filter(function (t) { return !!t.audio; });
+    engine.setPlaylist(ALL);
+    renderCounts();
+    setFilter(state.filter || "all");
+    openFromHash();
+    state.ready = true;
+  }
+
+  function loadLibrary() {
+    if (typeof fetch !== "function") { bootstrap(window.TRACKS || []); return; }
+    fetch("library.json", { cache: "no-cache" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("library.json -> " + res.status);
+        return res.json();
+      })
+      .then(bootstrap)
+      .catch(function () {
+        el.list.innerHTML = "";
+        el.empty.hidden = false;
+        el.empty.textContent = "Library could not be loaded (library.json missing?).";
+      });
+  }
+
+  loadLibrary();
 
   if (navigator.mediaSession) {
     navigator.mediaSession.setActionHandler("play", function () { engine.play(); });
@@ -642,7 +663,7 @@
 
   // expose a tiny handle for debugging / future extensions
   window.MusicLibrary = {
-    tracks: ALL,
+    get tracks() { return ALL; },
     state: state,
     engine: engine,
     play: function (id, open) { playId(id, open); },

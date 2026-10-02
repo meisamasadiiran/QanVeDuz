@@ -2,10 +2,9 @@
 """
 Generate the DEMO content shipped with the project:
 
-  * assets/audio/*.wav  — short, calm synthesised tracks (placeholders)
+  * assets/audio/*.mp3  — short, calm synthesised placeholder tracks
   * assets/covers/*.jpg — minimal editorial cover art
-
-and write js/tracks.js from them, so the site is playable straight away.
+  * library.json        — the runtime track list (read by the site, edited by admin.html)
 
 Replace the generated files with your own mp3 / wav / flac (same folder, same
 file names — or edit the DEMO list below) and re-run:
@@ -19,18 +18,18 @@ standard library. Flags: --force, --no-mp3, --keep-wav
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import random
 import struct
 import sys
 import wave
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AUDIO_DIR = os.path.join(ROOT, "assets", "audio")
 COVER_DIR = os.path.join(ROOT, "assets", "covers")
-JS_DIR = os.path.join(ROOT, "js")
 
 SAMPLE_RATE = 44100
 ACCENT = (201, 90, 61)      # #C95A3D
@@ -93,6 +92,11 @@ def hz_to_name(hz: float) -> str:
     return NOTE_NAMES[int(round(midi)) % 12]
 
 
+def mmss(seconds: float) -> str:
+    total = int(round(seconds))
+    return f"{total // 60:02d}:{total % 60:02d}"
+
+
 # --------------------------------------------------------------------------
 # audio synthesis
 # --------------------------------------------------------------------------
@@ -116,9 +120,9 @@ def note_buffer(f: float, seconds: float, waveform: str, attack: float = 0.03,
     n = int(SAMPLE_RATE * seconds)
     buf = [0.0] * n
     partials = {"sine": [(1, 1.0)],
-                  "triangle": [(1, 1.0), (3, 0.22), (5, 0.08)],
-                  "saw": [(1, 1.0), (2, 0.35), (3, 0.2), (4, 0.1)],
-                  "square": [(1, 1.0), (3, 0.3), (5, 0.15)]}[waveform]
+                "triangle": [(1, 1.0), (3, 0.22), (5, 0.08)],
+                "saw": [(1, 1.0), (2, 0.35), (3, 0.2), (4, 0.1)],
+                "square": [(1, 1.0), (3, 0.3), (5, 0.15)]}[waveform]
 
     ph = 0.0
     ph2 = 0.0
@@ -177,11 +181,8 @@ def hat(seconds: float = 0.06, level: float = 0.05) -> list[float]:
 def mix_into(dst: list[float], src: list[float], offset: int) -> None:
     start = max(0, offset)
     end = min(len(dst), offset + len(src))
-    if end <= start:
-        return
-    s0 = start - offset
     for i in range(start, end):
-        dst[i] += src[i - start + s0]
+        dst[i] += src[i - offset]
 
 
 def one_pole_lowpass(buf: list[float], cutoff_hz: float) -> list[float]:
@@ -202,7 +203,7 @@ def synthesise(track: Track) -> bytes:
     right = [0.0] * total
     beat = 60.0 / track.bpm
     bar = beat * 4
-    rng = random.Random(track.slug.__hash__() & 0xFFFF)
+    rng = random.Random(hash(track.slug) & 0xFFFF)
 
     third = 3 if track.pattern == "pad" else 4
     chords = [(freq(track.root, semi),
@@ -233,7 +234,6 @@ def synthesise(track: Track) -> bytes:
                 pan = 0.2 * math.sin(step)
                 mix_into(left, [v * (0.5 - pan) for v in nb], int(st * SAMPLE_RATE))
                 mix_into(right, [v * (0.5 + pan) for v in nb], int(st * SAMPLE_RATE))
-            # low root
             nb = note_buffer(chord[0] / 2, bar * 0.95, "sine", attack=0.02, release_ratio=0.3)
             mix_into(left, [v * 0.7 for v in nb], int(t0 * SAMPLE_RATE))
             mix_into(right, [v * 0.7 for v in nb], int(t0 * SAMPLE_RATE))
@@ -246,7 +246,6 @@ def synthesise(track: Track) -> bytes:
                 pan = 0.18 * (k - 1)
                 mix_into(left, [v * gain * (0.5 - pan) for v in nb], int(t0 * SAMPLE_RATE))
                 mix_into(right, [v * gain * (0.5 + pan) for v in nb], int(t0 * SAMPLE_RATE))
-            # sparse high note
             f = chord[2] * 2
             st = t0 + bar * (0.25 + 0.5 * rng.random())
             nb = note_buffer(f, bar * 0.5, "sine", attack=0.05, release_ratio=0.7)
@@ -346,7 +345,6 @@ def build_covers(tracks: list[Track]) -> None:
         f_index = f_meta = ImageFont.load_default()
 
     for i, track in enumerate(tracks, start=1):
-        rng = random.Random(track.slug)
         img = Image.new("RGB", (size, size), BG)
         d = ImageDraw.Draw(img)
 
@@ -365,14 +363,13 @@ def build_covers(tracks: list[Track]) -> None:
             d.ellipse([c[0] - 52, c[1] - 52, c[0] + 52, c[1] + 52], fill=BG)
 
         elif kind == "bars":
-            widths = [26, 26, 26, 26]
             heights = [300, 460, 210, 380]
             x = pad + 40
-            for w, h in zip(widths, heights):
+            for j, h in enumerate(heights):
                 top = size - pad - h
-                d.rounded_rectangle([x, top, x + w, size - pad], radius=13,
-                                    fill=ACCENT if heights.index(h) == max(range(len(heights)), key=heights.__getitem__) else SOFT)
-                x += w + 34
+                color = ACCENT if h == max(heights) else SOFT
+                d.rounded_rectangle([x, top, x + 26, size - pad], radius=13, fill=color)
+                x += 60
 
         elif kind == "horizon":
             d.line([(pad - 40, size // 2), (size - pad + 40, size // 2)], fill=SOFT, width=3)
@@ -416,44 +413,12 @@ def build_covers(tracks: list[Track]) -> None:
 
 
 # --------------------------------------------------------------------------
-# js/tracks.js
+# library.json
 # --------------------------------------------------------------------------
 
-def js_string(value: str) -> str:
-    return '"' + str(value).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def mmss(seconds: float) -> str:
-    total = int(round(seconds))
-    return f"{total // 60:02d}:{total % 60:02d}"
-
-
-def write_tracks_js(tracks: list[Track]) -> None:
-    os.makedirs(JS_DIR, exist_ok=True)
-    lines = [
-        "/* ==========================================================================",
-        "   TRACK DATA — generated by scripts/build-tracks.py",
-        "   --------------------------------------------------------------------------",
-        "   Add one object per track:",
-        "",
-        "   {",
-        '     title:    "Track Name",                    // required',
-        '     artist:   "Artist Name",                   // required',
-        '     cover:    "assets/covers/track-01.jpg",    // jpg / png / webp',
-        '     audio:    "assets/audio/track-01.mp3",     // mp3 / wav / flac',
-        '     download: "assets/audio/track-01.mp3",     // optional ("" hides the button)',
-        '     duration: "03:42",                         // optional: read from file if empty',
-        '     category: "single",                        // "single" | "album"',
-        '     meta:     "Single · 2026",                 // optional small label',
-        '     note:     "One line about the track."      // optional, full player only',
-        "   }",
-        "",
-        "   Re-run `python3 scripts/build-tracks.py` after changing the assets folder.",
-        "   ========================================================================== */",
-        "",
-        "window.TRACKS = [",
-    ]
-
+def write_library_json(tracks: list[Track]) -> None:
+    """The site reads this file at runtime; admin.html (Studio) edits it."""
+    items = []
     for t in tracks:
         duration = t.durations.get(t.slug)
         audio_rel = ""
@@ -467,26 +432,20 @@ def write_tracks_js(tracks: list[Track]) -> None:
         cover_rel = f"assets/covers/{t.slug}.jpg"
         if not os.path.exists(os.path.join(ROOT, cover_rel)):
             cover_rel = ""
-
-        lines += [
-            "  {",
-            f"    title: {js_string(t.title)},",
-            f"    artist: {js_string(t.artist)},",
-            f"    cover: {js_string(cover_rel)},",
-            f"    audio: {js_string(audio_rel)},",
-            f"    download: {js_string(audio_rel)},",
-            f"    duration: {js_string(mmss(duration if duration is not None else t.seconds))},",
-            f"    category: {js_string(t.category)},",
-            f"    meta: {js_string(t.meta)},",
-            f"    note: {js_string(t.note)}",
-            "  },",
-        ]
-    if lines[-1].endswith(","):
-        lines[-1] = lines[-1][:-1]
-    lines += ["];", ""]
-
-    with open(os.path.join(JS_DIR, "tracks.js"), "w", encoding="utf-8") as fh:
-        fh.write("\n".join(lines))
+        items.append({
+            "title": t.title,
+            "artist": t.artist,
+            "cover": cover_rel,
+            "audio": audio_rel,
+            "download": audio_rel,
+            "duration": mmss(duration if duration is not None else t.seconds),
+            "category": t.category,
+            "meta": t.meta,
+            "note": t.note,
+        })
+    with open(os.path.join(ROOT, "library.json"), "w", encoding="utf-8") as fh:
+        json.dump(items, fh, ensure_ascii=False, indent=2)
+        fh.write("\n")
 
 
 # --------------------------------------------------------------------------
@@ -524,11 +483,11 @@ def main() -> None:
             os.remove(path)   # mp3 keeps the repo small; --keep-wav to keep both
 
     build_covers(DEMO)
-    write_tracks_js(DEMO)
+    write_library_json(DEMO)
 
     total = sum(os.path.getsize(os.path.join(AUDIO_DIR, f)) for f in os.listdir(AUDIO_DIR))
     print(f"\nDone. {len(DEMO)} tracks, assets/audio = {total / 1024 / 1024:.1f} MB")
-    print("js/tracks.js rewritten.")
+    print("library.json rewritten.")
 
 
 if __name__ == "__main__":

@@ -56,8 +56,18 @@ Object.defineProperty(window.HTMLMediaElement.prototype, "currentTime", {
   configurable: true,
 });
 
+/* ---- fetch stand-in: serve library.json + accept HEAD probes ---- */
+window.fetch = function (url) {
+  const u = String(url);
+  if (u.indexOf("library.json") > -1) {
+    const data = JSON.parse(fs.readFileSync(path.join(ROOT, "library.json"), "utf8"));
+    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(data) });
+  }
+  return Promise.resolve({ ok: true, status: 200 });
+};
+
 /* ---- load the real project scripts, in page order ---- */
-for (const file of ["js/tracks.js", "js/audio-engine.js", "js/app.js"]) {
+for (const file of ["js/audio-engine.js", "js/app.js"]) {
   const src = fs.readFileSync(path.join(ROOT, file), "utf8");
   try {
     window.eval(src, { filename: file });
@@ -85,10 +95,16 @@ function click(elm) {
   const audio = $("#audio");
   audio.__duration = 36;
 
+  // library.json loads asynchronously — wait for bootstrap
+  for (let i = 0; i < 100 && !(window.MusicLibrary && window.MusicLibrary.state.ready); i++) {
+    await sleep(20);
+  }
+  assert(window.MusicLibrary && window.MusicLibrary.state.ready, "library.json loaded (async bootstrap)");
+
   const tracks = window.MusicLibrary.tracks;
 
   console.log("init");
-  assert(tracks.length === 6, "6 tracks loaded from js/tracks.js");
+  assert(tracks.length === 6, "6 tracks loaded from library.json");
   assert($$(".track").length === 6, "6 cards rendered");
   assert($('[data-count="all"]').textContent === "6", "ALL count = 6");
   assert($('[data-count="single"]').textContent === "3", "SINGLES count = 3");
