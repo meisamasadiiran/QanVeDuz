@@ -60,7 +60,8 @@ Object.defineProperty(window.HTMLMediaElement.prototype, "currentTime", {
 window.fetch = function (url) {
   const u = String(url);
   if (u.indexOf("library.json") > -1) {
-    const data = JSON.parse(fs.readFileSync(path.join(ROOT, "library.json"), "utf8"));
+    // fixture keeps the UI tests meaningful even when the shipped repo is empty
+    const data = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "library.json"), "utf8"));
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(data) });
   }
   return Promise.resolve({ ok: true, status: 200 });

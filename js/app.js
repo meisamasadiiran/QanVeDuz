@@ -17,6 +17,7 @@
       filterAll: "ALL", filterSingle: "SINGLES", filterAlbum: "ALBUMS",
       searchPh: "Search title or artist",
       empty: "No results. Try another title or artist.",
+      emptyLib: "The library is empty. Open Studio to publish your first track.",
       loadErr: "Library could not be loaded (library.json missing?).",
       archive: "Personal archive",
       nowPlaying: "NOW PLAYING", nowSingle: "SINGLE", nowAlbum: "ALBUM TRACK",
@@ -30,6 +31,7 @@
       filterAll: "همه", filterSingle: "تک‌آهنگ‌ها", filterAlbum: "آلبوم‌ها",
       searchPh: "جست‌وجوی عنوان یا هنرمند",
       empty: "نتیجه‌ای پیدا نشد؛ عنوان یا هنرمند دیگری را جست‌وجو کنید.",
+      emptyLib: "کتاب‌خانه خالی است؛ از Studio اولین آهنگ خود را منتشر کنید.",
       loadErr: "کتاب‌خانه بارگذاری نشد (library.json در دسترس نیست؟).",
       archive: "آرشیو شخصی",
       nowPlaying: "در حال پخش", nowSingle: "تک‌آهنگ", nowAlbum: "قطعهٔ آلبوم",
@@ -63,6 +65,7 @@
     if (btn) btn.textContent = dict.langBtn;
 
     renderCounts();
+    if (state.ready) renderList();   // refresh translated empty-state copy
     var current = engine.track ? engine.track() : null;
     if (current) setFpLabel(current);
   }
@@ -273,7 +276,14 @@
 
     el.list.innerHTML = "";
     el.list.appendChild(frag);
-    el.empty.hidden = state.visible.length !== 0;
+
+    if (ALL.length === 0) {
+      el.empty.hidden = false;
+      el.empty.textContent = tr("emptyLib");
+    } else {
+      el.empty.hidden = state.visible.length !== 0;
+      if (!el.empty.hidden) el.empty.textContent = tr("empty");
+    }
     syncActiveCard();
   }
 

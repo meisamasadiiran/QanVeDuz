@@ -74,11 +74,11 @@ That's it — the card, the player, the filters and the search pick it up
 automatically. If a `download` file doesn't exist on the host, its download
 button hides itself at runtime.
 
-### Demo content
+### Optional demo content
 
-The six tracks and covers shipped in `assets/` are generated placeholders so
-the site is playable out of the box. Replace them with your own recordings
-(same file names) or re-render the demo:
+The repository ships with an **empty library** — your archive starts clean and
+you publish real tracks from Studio. If you want a playable demo first,
+generate placeholder tracks + covers locally (not meant for your public site):
 
 ```bash
 pip install pillow lameenc        # optional: covers + small mp3s
