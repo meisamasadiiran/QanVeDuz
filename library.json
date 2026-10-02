@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "title": "Yalan Dunya - Shahryar.mp3",
+    "artist": "Meisam Asadi (iZ)",
+    "cover": "assets/covers/yalan-dunya-shahryar-mp3.jpg",
+    "audio": "assets/audio/yalan-dunya-shahryar-mp3.mp3",
+    "download": "assets/audio/yalan-dunya-shahryar-mp3.mp3",
+    "duration": "04:12",
+    "category": "single",
+    "meta": "Single",
+    "note": "شعری از شهریار و تلفیق موزیک سنتی و مدرن آذربایجان"
+  }
+]
