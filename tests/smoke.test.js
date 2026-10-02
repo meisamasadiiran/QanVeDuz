@@ -222,6 +222,20 @@ function click(elm) {
   const miniDl = $("#miniDownload");
   assert(!miniDl.hidden, "mini download visible");
 
+  console.log("language toggle (en/fa)");
+  click($("#langToggle"));
+  await sleep(0);
+  assert(document.documentElement.lang === "fa" && document.documentElement.dir === "rtl", "fa mode sets lang=fa dir=rtl");
+  assert($(".hero__title").textContent === "موسیقی من", "hero title translated");
+  assert($('[data-filter="single"] [data-i18n]').textContent === "تک‌آهنگ‌ها", "filter labels translated");
+  assert($("#searchInput").getAttribute("placeholder").includes("جست‌وجو"), "search placeholder translated");
+  assert($("#libraryCount").textContent.includes("آهنگ"), "footer count translated");
+  assert($(".credit__fa").textContent.includes("میثم اسدی"), "credit names Meisam Asadi (fa)");
+  assert($(".credit__en").textContent.includes("Meisam Asadi"), "credit names Meisam Asadi (en)");
+  click($("#langToggle"));
+  await sleep(0);
+  assert($(".hero__title").textContent === "MY MUSIC" && document.documentElement.dir === "ltr", "back to en/ltr");
+
   console.log("");
   if (errors.length) {
     console.error("page errors:", errors);

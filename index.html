@@ -18,6 +18,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600&display=swap">
+<!-- Shabnam: Persian typeface for all fa text -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css">
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -32,9 +34,12 @@
       <span class="brand__name">MUSIC</span>
     </a>
 
-    <button class="icon-btn" id="searchToggle" type="button" aria-label="Search" aria-expanded="false" aria-controls="searchBar">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-    </button>
+    <div class="header__actions">
+      <button class="lang-btn" id="langToggle" type="button" aria-label="Switch language / تغییر زبان">FA</button>
+      <button class="icon-btn" id="searchToggle" type="button" aria-label="Search" aria-expanded="false" aria-controls="searchBar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      </button>
+    </div>
   </header>
 
   <!-- ============ SEARCH ============ -->
@@ -42,22 +47,22 @@
     <form role="search" class="search" onsubmit="return false">
       <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
       <input id="searchInput" class="search__input" type="search" inputmode="search" autocomplete="off"
-             placeholder="Search title or artist" aria-label="Search title or artist">
+             placeholder="Search title or artist" data-i18n-ph="searchPh" aria-label="Search title or artist">
       <button class="search__clear" id="searchClear" type="button" aria-label="Clear search" hidden>&times;</button>
     </form>
   </div>
 
   <!-- ============ HERO ============ -->
   <section class="hero">
-    <h1 class="hero__title">MY MUSIC</h1>
-    <p class="hero__lead">Listen. Download. Keep the sound.</p>
+    <h1 class="hero__title" data-i18n="heroTitle">MY MUSIC</h1>
+    <p class="hero__lead" data-i18n="heroLead">Listen. Download. Keep the sound.</p>
   </section>
 
   <!-- ============ FILTERS ============ -->
   <nav class="filters" id="filters" aria-label="Filter library">
-    <button class="chip is-active" type="button" data-filter="all">ALL <span class="chip__count" data-count="all"></span></button>
-    <button class="chip" type="button" data-filter="single">SINGLES <span class="chip__count" data-count="single"></span></button>
-    <button class="chip" type="button" data-filter="album">ALBUMS <span class="chip__count" data-count="album"></span></button>
+    <button class="chip is-active" type="button" data-filter="all"><span data-i18n="filterAll">ALL</span> <span class="chip__count" data-count="all"></span></button>
+    <button class="chip" type="button" data-filter="single"><span data-i18n="filterSingle">SINGLES</span> <span class="chip__count" data-count="single"></span></button>
+    <button class="chip" type="button" data-filter="album"><span data-i18n="filterAlbum">ALBUMS</span> <span class="chip__count" data-count="album"></span></button>
   </nav>
 
   <!-- ============ TRACK LIST ============ -->
@@ -65,15 +70,20 @@
     <h2 class="sr-only">Tracks</h2>
     <ul class="track-list" id="trackList"></ul>
 
-    <p class="empty" id="emptyState" hidden>No results. Try another title or artist.</p>
+    <p class="empty" id="emptyState" data-i18n="empty" hidden>No results. Try another title or artist.</p>
 
     <footer class="site-footer">
       <span id="libraryCount"></span>
       <span class="dot" aria-hidden="true">·</span>
-      <span>Personal archive</span>
+      <span data-i18n="archive">Personal archive</span>
       <span class="dot" aria-hidden="true">·</span>
       <a class="studio-link" href="admin.html">Studio</a>
     </footer>
+
+    <div class="credit">
+      <p class="credit__fa" lang="fa" dir="rtl">تمامی آهنگ‌ها و اشعار، اثر میثم اسدی است؛ لطفاً بدون کسبِ اجازه، از شعرها و محتوا سوءاستفاده نکنید.</p>
+      <p class="credit__en">All tracks &amp; lyrics are original works of Meisam Asadi — please do not misuse the lyrics or content without permission.</p>
+    </div>
   </main>
 </div>
 
@@ -149,7 +159,7 @@
 
     <a class="download-btn" id="fpDownload" download hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10.5"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg>
-      <span>DOWNLOAD</span>
+      <span data-i18n="download">DOWNLOAD</span>
     </a>
 
   </div>

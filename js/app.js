@@ -8,6 +8,65 @@
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
+  /* ---------------------------------------------------------- i18n (en/fa) */
+
+  var I18N = {
+    en: {
+      heroTitle: "MY MUSIC",
+      heroLead: "Listen. Download. Keep the sound.",
+      filterAll: "ALL", filterSingle: "SINGLES", filterAlbum: "ALBUMS",
+      searchPh: "Search title or artist",
+      empty: "No results. Try another title or artist.",
+      loadErr: "Library could not be loaded (library.json missing?).",
+      archive: "Personal archive",
+      nowPlaying: "NOW PLAYING", nowSingle: "SINGLE", nowAlbum: "ALBUM TRACK",
+      download: "DOWNLOAD",
+      langBtn: "FA",
+      tracksOne: "1 track", tracksMany: "%d tracks"
+    },
+    fa: {
+      heroTitle: "موسیقی من",
+      heroLead: "گوش کن، دانلود کن، صدا را نگه دار.",
+      filterAll: "همه", filterSingle: "تک‌آهنگ‌ها", filterAlbum: "آلبوم‌ها",
+      searchPh: "جست‌وجوی عنوان یا هنرمند",
+      empty: "نتیجه‌ای پیدا نشد؛ عنوان یا هنرمند دیگری را جست‌وجو کنید.",
+      loadErr: "کتاب‌خانه بارگذاری نشد (library.json در دسترس نیست؟).",
+      archive: "آرشیو شخصی",
+      nowPlaying: "در حال پخش", nowSingle: "تک‌آهنگ", nowAlbum: "قطعهٔ آلبوم",
+      download: "دانلود",
+      langBtn: "EN",
+      tracksOne: "۱ آهنگ", tracksMany: "%d آهنگ"
+    }
+  };
+
+  var lang = "en";
+  try { lang = localStorage.getItem("lang") === "fa" ? "fa" : "en"; } catch (e) {}
+
+  function tr(key) { return (I18N[lang] || I18N.en)[key] || (I18N.en[key] || key); }
+
+  function applyLang(next) {
+    lang = next === "fa" ? "fa" : "en";
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+
+    var dict = I18N[lang];
+    $$("[data-i18n]").forEach(function (node) {
+      var key = node.getAttribute("data-i18n");
+      if (dict[key]) node.textContent = dict[key];
+    });
+    $$("[data-i18n-ph]").forEach(function (node) {
+      var key = node.getAttribute("data-i18n-ph");
+      if (dict[key]) node.setAttribute("placeholder", dict[key]);
+    });
+    var btn = $("#langToggle");
+    if (btn) btn.textContent = dict.langBtn;
+
+    renderCounts();
+    var current = engine.track ? engine.track() : null;
+    if (current) setFpLabel(current);
+  }
+
   /* ---------------------------------------------------------------- data */
 
   /** "3:42" | "03:42" | "1:02:10" | 222 -> "MM:SS" style string. */
@@ -224,7 +283,9 @@
     el.counts.all.textContent = ALL.length;
     el.counts.single.textContent = single;
     el.counts.album.textContent = album;
-    el.libraryCount.textContent = ALL.length + (ALL.length === 1 ? " track" : " tracks");
+    el.libraryCount.textContent = ALL.length === 1
+      ? tr("tracksOne")
+      : tr("tracksMany").replace("%d", String(ALL.length));
   }
 
   function applyFilters() {
@@ -315,7 +376,7 @@
     el.fpArtist.textContent = track.artist;
     el.fpNote.textContent = track.note || "";
     el.fpNote.hidden = !track.note;
-    el.fpLabel.textContent = track.category === "album" ? "ALBUM TRACK" : "SINGLE";
+    setFpLabel(track);
     el.fpDuration.textContent = durationText(track) || "0:00";
 
     setDownload(el.miniDownload, track);
@@ -337,6 +398,11 @@
       } catch (e) { /* metadata is a nice-to-have */ }
     }
     if (openPlayer) openFullPlayer(true);
+  }
+
+  function setFpLabel(track) {
+    if (!el.fpLabel || !track) return;
+    el.fpLabel.textContent = track.category === "album" ? tr("nowAlbum") : tr("nowSingle");
   }
 
   function setPlaying(playing) {
@@ -576,6 +642,7 @@
     el.fpArtist.textContent = track.artist;
     el.fpNote.textContent = track.note || "";
     el.fpNote.hidden = !track.note;
+    setFpLabel(track);
     setDownload(el.miniDownload, track);
     setDownload(el.fpDownload, track);
     if (history.replaceState) history.replaceState(null, "", "#" + track.id);
@@ -615,6 +682,7 @@
       el.fpArtist.textContent = track.artist;
       el.fpNote.textContent = track.note || "";
       el.fpNote.hidden = !track.note;
+      setFpLabel(track);
       el.fpDuration.textContent = durationText(track) || "0:00";
       setDownload(el.miniDownload, track);
       setDownload(el.fpDownload, track);
@@ -648,10 +716,15 @@
       .catch(function () {
         el.list.innerHTML = "";
         el.empty.hidden = false;
-        el.empty.textContent = "Library could not be loaded (library.json missing?).";
+        el.empty.textContent = tr("loadErr");
       });
   }
 
+  $("#langToggle").addEventListener("click", function () {
+    applyLang(lang === "en" ? "fa" : "en");
+  });
+
+  applyLang(lang);
   loadLibrary();
 
   if (navigator.mediaSession) {

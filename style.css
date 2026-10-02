@@ -118,6 +118,54 @@ time{font-variant-numeric:tabular-nums}
   letter-spacing:.22em;
 }
 
+.header__actions{display:flex;align-items:center;gap:4px}
+
+.lang-btn{
+  min-width:44px;height:44px;
+  border-radius:14px;
+  color:var(--soft);
+  font-size:12px;font-weight:700;letter-spacing:.1em;
+  transition:background .18s var(--ease), color .18s var(--ease);
+}
+.lang-btn:hover{background:var(--surface-2);color:var(--fg)}
+
+/* Persian (Shabnam) mode */
+html[lang="fa"] body{
+  font-family:"Shabnam","Vazirmatn",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+}
+html[lang="fa"] .hero__title,
+html[lang="fa"] .chip,
+html[lang="fa"] .brand__name,
+html[lang="fa"] .download-btn,
+html[lang="fa"] .site-footer,
+html[lang="fa"] .full-player__label,
+html[lang="fa"] .search__input{letter-spacing:0}
+html[lang="fa"] .track__title,
+html[lang="fa"] .track__artist,
+html[lang="fa"] .mini-title,
+html[lang="fa"] .mini-artist,
+html[lang="fa"] .fp-title,
+html[lang="fa"] .fp-artist{font-family:inherit}
+
+/* ---------- credit ---------- */
+.credit{
+  padding:26px 4px 4px;
+  text-align:center;
+}
+.credit__fa{
+  margin:0;
+  color:var(--soft);
+  font-family:"Shabnam","Vazirmatn",system-ui,Tahoma,sans-serif;
+  font-size:12.5px;
+  line-height:2.1;
+}
+.credit__en{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:10.5px;
+  letter-spacing:.08em;
+}
+
 /* ---------- icon buttons ---------- */
 .icon-btn{
   display:inline-flex;
