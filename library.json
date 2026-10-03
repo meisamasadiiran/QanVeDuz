@@ -9,5 +9,16 @@
     "category": "single",
     "meta": "Single",
     "note": "شعری از شهریار و تلفیق موزیک سنتی و مدرن آذربایجان"
+  },
+  {
+    "title": "Molana - iZ",
+    "artist": "Meisam Asadi (iZ)",
+    "cover": "assets/covers/molana-iz.png",
+    "audio": "assets/audio/molana-iz.mp3",
+    "download": "assets/audio/molana-iz.mp3",
+    "duration": "03:19",
+    "category": "single",
+    "meta": "Single",
+    "note": "شعری از مولانا"
   }
 ]
