@@ -341,8 +341,9 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   letter-spacing:.14em;
 }
 
-.track__info{min-width:0}
+.track__info{min-width:0;display:block}
 .track__title{
+  display:block;
   margin:0;
   font-size:15.5px;
   font-weight:600;
@@ -352,6 +353,7 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   text-overflow:ellipsis;
 }
 .track__artist{
+  display:block;
   margin:3px 0 0;
   color:var(--soft);
   font-size:13px;
@@ -360,11 +362,15 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   text-overflow:ellipsis;
 }
 .track__sub{
+  display:block;
   margin:5px 0 0;
   color:var(--muted);
   font-size:11.5px;
   letter-spacing:.04em;
   font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .track__sub .sep{opacity:.5;margin:0 6px}
 
