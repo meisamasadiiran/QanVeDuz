@@ -154,17 +154,17 @@ html[lang="fa"] .fp-artist{font-family:inherit}
 }
 .credit__fa{
   margin:0;
-  color:#6E6C67;
+  color:#63615C;
   font-family:"Shabnam","Vazirmatn",system-ui,Tahoma,sans-serif;
-  font-size:10.5px;
+  font-size:9.5px;
   font-weight:400;
-  line-height:2;
+  line-height:1.9;
 }
 .credit__en{
-  margin:5px 0 0;
-  color:#57554F;
-  font-size:9px;
-  letter-spacing:.06em;
+  margin:4px 0 0;
+  color:#504E49;
+  font-size:8.5px;
+  letter-spacing:.05em;
 }
 
 /* ---------- icon buttons ---------- */
@@ -716,6 +716,12 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   .mini-cover{width:52px;height:52px}
   .mini-player{padding:0 22px 0 24px}
   .mini-player__progress{height:3px}
+}
+
+@media (min-width:1200px){
+  .track-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+ .mini-player__progress{height:3px}
 }
 
 @media (min-width:1200px){
