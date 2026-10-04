@@ -48,6 +48,8 @@
   .btn--ghost{background:var(--surface-2);color:var(--soft);font-weight:600}
   .btn--ghost:hover{background:var(--surface-3);color:var(--fg)}
   .btn--danger{background:transparent;color:#C95A3D;border:1px solid var(--line);min-height:40px;margin:0;width:auto;padding:0 14px;border-radius:10px;font-size:12px}
+  .btn--edit{background:transparent;color:var(--soft);border:1px solid var(--line);min-height:40px;margin:0;width:auto;padding:0 14px;border-radius:10px;font-size:12px}
+  .btn--edit:hover{color:var(--fg);background:var(--surface-3)}
   .log{
     margin-top:16px;background:#1B1B18;border-radius:12px;padding:12px 14px;
     color:var(--soft);font-size:12px;line-height:2;min-height:24px;
@@ -97,7 +99,7 @@
 
   <!-- ---------- publish ---------- -->
   <section class="card" id="publishCard" hidden>
-    <h2>انتشار آهنگ جدید</h2>
+    <h2 id="publishTitle">انتشار آهنگ جدید</h2>
     <p class="hint">فایل را انتخاب کن، اطلاعات را بنویس و «انتشار» را بزن.
       فایل مستقیم به مخزن می‌رود و سایت حدود یک دقیقه بعد آن را نشان می‌دهد.</p>
 
@@ -125,6 +127,7 @@
     <input id="fNote" type="text" placeholder="یک خط دربارهٔ این آهنگ">
 
     <button class="btn" id="publishBtn" type="button">انتشار در سایت</button>
+    <button class="btn btn--ghost" id="cancelEditBtn" type="button" hidden>انصراف از ویرایش</button>
     <div class="log" id="publishLog" hidden></div>
   </section>
 
@@ -153,6 +156,7 @@
     fTitle: $("#fTitle"), fArtist: $("#fArtist"), fCategory: $("#fCategory"),
     fAudio: $("#fAudio"), fCover: $("#fCover"), fNote: $("#fNote"),
     publishBtn: $("#publishBtn"), publishLog: $("#publishLog"),
+    publishTitle: $("#publishTitle"), cancelBtn: $("#cancelEditBtn"),
     manageList: $("#manageList"), disconnectBtn: $("#disconnectBtn")
   };
 
@@ -356,70 +360,148 @@
       var dur = document.createElement("span");
       dur.className = "d";
       dur.textContent = t.duration || "";
+      var edit = document.createElement("button");
+      edit.className = "btn--edit btn";
+      edit.type = "button";
+      edit.textContent = "ویرایش";
+      edit.addEventListener("click", function () { startEdit(i); });
       var del = document.createElement("button");
       del.className = "btn--danger btn";
       del.type = "button";
       del.textContent = "حذف";
       del.addEventListener("click", function () { removeTrack(i, del); });
-      li.appendChild(title); li.appendChild(dur); li.appendChild(del);
+      li.appendChild(title); li.appendChild(dur); li.appendChild(edit); li.appendChild(del);
       els.manageList.appendChild(li);
     });
+  }
+
+  /* ------------------------------------------------ edit mode */
+
+  var editingIndex = null;
+
+  function startEdit(i) {
+    var t = library[i];
+    if (!t) return;
+    editingIndex = i;
+    els.publishTitle.textContent = "ویرایش آهنگ";
+    els.publishBtn.textContent = "ذخیرهٔ تغییرات";
+    els.cancelBtn.hidden = false;
+    els.fTitle.value = t.title || "";
+    els.fArtist.value = t.artist || "";
+    els.fCategory.value = t.category || "single";
+    els.fNote.value = t.note || "";
+    els.fAudio.value = "";
+    els.fCover.value = "";
+    clearLog(els.publishLog);
+    log(els.publishLog, "» ویرایش: " + t.title + " — فایل صوتی/کاور جدید اختیاری است", "dim");
+    els.publishCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function cancelEdit() {
+    editingIndex = null;
+    els.publishTitle.textContent = "انتشار آهنگ جدید";
+    els.publishBtn.textContent = "انتشار در سایت";
+    els.cancelBtn.hidden = true;
+    els.fTitle.value = els.fArtist.value = els.fNote.value = "";
+    els.fAudio.value = ""; els.fCover.value = "";
+    clearLog(els.publishLog);
   }
 
   /* ------------------------------------------------ publish */
 
   function publish() {
     clearLog(els.publishLog);
+    var isEdit = editingIndex !== null;
+    var orig = isEdit ? library[editingIndex] : null;
+
     var title = els.fTitle.value.trim();
     var artist = els.fArtist.value.trim();
     var audioFile = els.fAudio.files[0];
+    var coverFile = els.fCover.files[0];
     if (!title || !artist) { log(els.publishLog, "عنوان و هنرمند الزامی است.", "err"); return; }
-    if (!audioFile) { log(els.publishLog, "فایل صوتی را انتخاب کن.", "err"); return; }
+    if (!audioFile && !isEdit) { log(els.publishLog, "فایل صوتی را انتخاب کن.", "err"); return; }
 
     els.publishBtn.disabled = true;
-
-    var slug = slugify(title);
-    library.forEach(function (t) {           // avoid path collisions
-      if (t.audio && t.audio.indexOf(slug + ".") > -1) slug += "-" + Date.now().toString(36);
-    });
-    var audioPath = "assets/audio/" + slug + extOf(audioFile.name, ".mp3");
-    var coverFile = els.fCover.files[0];
-    var coverPath = coverFile ? "assets/covers/" + slug + extOf(coverFile.name, ".jpg") : "";
-
     log(els.publishLog, "» reading files on device …", "dim");
 
     Promise.all([
-      fileToBase64(audioFile),
+      audioFile ? fileToBase64(audioFile) : Promise.resolve(null),
       coverFile ? fileToBase64(coverFile) : Promise.resolve(null),
-      readDuration(audioFile)
+      audioFile ? readDuration(audioFile) : Promise.resolve(0)
     ]).then(function (parts) {
       var audioB64 = parts[0], coverB64 = parts[1], seconds = parts[2];
+      var changes = [];
+      var entry;
 
-      var entry = {
-        title: title,
-        artist: artist,
-        cover: coverPath,
-        audio: audioPath,
-        download: audioPath,
-        duration: mmss(seconds),
-        category: els.fCategory.value,
-        meta: els.fCategory.value === "album" ? "Album" : "Single",
-        note: els.fNote.value.trim()
-      };
-      var newLib = library.concat([entry]);
+      if (isEdit) {
+        entry = {
+          title: title,
+          artist: artist,
+          cover: orig.cover || "",
+          audio: orig.audio,
+          download: orig.audio,
+          duration: orig.duration || "",
+          category: els.fCategory.value,
+          meta: els.fCategory.value === "album" ? "Album" : "Single",
+          note: els.fNote.value.trim()
+        };
+        if (coverB64) {   // overwrite the cover (same path keeps things tidy)
+          var coverPath = orig.cover ||
+            ("assets/covers/" + slugify(title) + extOf(coverFile.name, ".jpg"));
+          entry.cover = coverPath;
+          changes.push({ path: coverPath, base64: coverB64 });
+        }
+        if (audioB64) {   // replace audio only when a new file was picked
+          var newExt = extOf(audioFile.name, ".mp3");
+          var oldExt = extOf(orig.audio, ".mp3");
+          var audioPath = orig.audio;
+          if (newExt !== oldExt) {
+            audioPath = orig.audio.replace(/\.[a-z0-9]+$/i, "") + newExt;
+          }
+          entry.audio = entry.download = audioPath;
+          entry.duration = mmss(seconds);
+          changes.push({ path: audioPath, base64: audioB64 });
+          if (audioPath !== orig.audio) changes.push({ path: orig.audio, base64: null });
+        }
+        var updated = library.slice();
+        updated[editingIndex] = entry;
+        changes.push({ path: "library.json",
+                       base64: utf8Base64(JSON.stringify(updated, null, 2) + "\n") });
+      } else {
+        var slug = slugify(title);
+        library.forEach(function (t) {       // avoid path collisions
+          if (t.audio && t.audio.indexOf(slug + ".") > -1) slug += "-" + Date.now().toString(36);
+        });
+        var aPath = "assets/audio/" + slug + extOf(audioFile.name, ".mp3");
+        var cPath = coverFile ? "assets/covers/" + slug + extOf(coverFile.name, ".jpg") : "";
+        entry = {
+          title: title,
+          artist: artist,
+          cover: cPath,
+          audio: aPath,
+          download: aPath,
+          duration: mmss(seconds),
+          category: els.fCategory.value,
+          meta: els.fCategory.value === "album" ? "Album" : "Single",
+          note: els.fNote.value.trim()
+        };
+        changes.push({ path: aPath, base64: audioB64 });
+        if (coverB64) changes.push({ path: cPath, base64: coverB64 });
+        changes.push({ path: "library.json",
+                       base64: utf8Base64(JSON.stringify(library.concat([entry]), null, 2) + "\n") });
+      }
 
-      var changes = [
-        { path: audioPath, base64: audioB64 },
-        { path: "library.json", base64: utf8Base64(JSON.stringify(newLib, null, 2) + "\n") }
-      ];
-      if (coverB64) changes.splice(1, 0, { path: coverPath, base64: coverB64 });
-
-      return commitChanges(changes, "add: " + title, els.publishLog);
+      return commitChanges(changes, (isEdit ? "edit: " : "add: ") + title, els.publishLog);
     }).then(function () {
-      log(els.publishLog, "✓ منتشر شد! سایت تا ~۱ دقیقهٔ دیگر آن را نشان می‌دهد.", "ok");
+      log(els.publishLog, isEdit
+        ? "✓ تغییرات ذخیره شد؛ سایت تا ~۱ دقیقهٔ دیگر به‌روز می‌شود."
+        : "✓ منتشر شد! سایت تا ~۱ دقیقهٔ دیگر آن را نشان می‌دهد.", "ok");
       log(els.publishLog, "https://meisamasadiiran.github.io/QanVeDuz/", "ok");
-      els.fTitle.value = els.fArtist.value = els.fNote.value = "";
-      els.fAudio.value = ""; els.fCover.value = "";
+      if (isEdit) cancelEdit();
+      else {
+        els.fTitle.value = els.fArtist.value = els.fNote.value = "";
+        els.fAudio.value = ""; els.fCover.value = "";
+      }
       return refreshLibrary();
     }).catch(function (e) {
       log(els.publishLog, "✗ " + e.message, "err");
@@ -456,6 +538,7 @@
   els.connectBtn.addEventListener("click", connect);
   els.tokenInput.addEventListener("keydown", function (e) { if (e.key === "Enter") connect(); });
   els.publishBtn.addEventListener("click", publish);
+  els.cancelBtn.addEventListener("click", cancelEdit);
   els.disconnectBtn.addEventListener("click", function () {
     localStorage.removeItem("gh_token");
     location.reload();

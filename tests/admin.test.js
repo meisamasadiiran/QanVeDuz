@@ -144,9 +144,27 @@ function click(el) { el.dispatchEvent(new window.MouseEvent("click", { bubbles: 
   await sleep(100);
   assert($("#manageList").children.length === 1, "manage list shows published track");
 
+  console.log("edit (rename + keep files)");
+  click($("#manageList").querySelector(".btn--edit"));
+  await sleep(10);
+  assert($("#fTitle").value === "My Song", "edit form prefilled with current title");
+  assert(!$("#cancelEditBtn").hidden && $("#publishBtn").textContent.includes("ذخیره"), "edit-mode UI active");
+  $("#fTitle").value = "My Song v2";
+  click($("#publishBtn"));
+  for (let i = 0; i < 100 && calls.filter((c) => c.method === "PATCH").length < 2; i++) await sleep(20);
+  const editTrees = calls.filter((c) => c.u.endsWith("/git/trees")).pop();
+  const editLib = editTrees.body.tree.find((e) => e.path === "library.json");
+  const editJson = JSON.parse(Buffer.from(blobs[editLib.sha], "base64").toString("utf8"));
+  assert(editJson.length === 1 && editJson[0].title === "My Song v2", "rename lands in library.json");
+  assert(editJson[0].audio.endsWith("my-song.mp3"), "audio path preserved when no new file picked");
+  assert(!editTrees.body.tree.some((e) => e.sha === null), "metadata-only edit deletes nothing");
+  await sleep(80);
+  assert($("#manageList").textContent.includes("My Song v2"), "manage list shows edited title");
+  assert($("#cancelEditBtn").hidden, "returns to publish mode after save");
+
   console.log("delete");
   click($("#manageList").querySelector(".btn--danger"));
-  for (let i = 0; i < 100 && calls.filter((c) => c.method === "PATCH").length < 2; i++) await sleep(20);
+  for (let i = 0; i < 100 && calls.filter((c) => c.method === "PATCH").length < 3; i++) await sleep(20);
   const delTrees = calls.filter((c) => c.u.endsWith("/git/trees")).pop();
   const audioDel = delTrees.body.tree.find((e) => e.path.startsWith("assets/audio"));
   assert(audioDel && audioDel.sha === null, "delete commits a null-sha entry (removes file)");
