@@ -184,6 +184,20 @@
 
   var engine = new AudioEngine(el.audio);
 
+  /** Privacy-friendly analytics (GoatCounter). No-op until the count script
+      is enabled in index.html — then plays/downloads/pageviews show up on
+      the dashboard. */
+  function report(kind, track) {
+    if (!track || typeof window.goatcounter === "undefined") return;
+    try {
+      window.goatcounter.count({
+        path: kind + "/" + (track.id || "track"),
+        title: (kind === "play" ? "Play: " : "Download: ") + track.title,
+        event: true
+      });
+    } catch (e) { /* analytics must never break playback */ }
+  }
+
   /* ------------------------------------------------------- small helpers */
 
   function byId(id) {
@@ -375,6 +389,7 @@
 
     state.currentId = id;
     engine.load(track.index, true);
+    report("play", track);
 
     el.mini.hidden = false;
     el.miniCover.src = track.cover || FALLBACK_COVER;
@@ -460,7 +475,10 @@
     if (!card) return;
     var id = card.dataset.id;
 
-    if (action && action.dataset.action === "download") return;   // let the browser download
+    if (action && action.dataset.action === "download") {
+      report("download", byId(id));   // let the browser download
+      return;
+    }
 
     if (action && action.dataset.action === "play") {
       if (state.currentId === id) { engine.toggle(); }
@@ -524,6 +542,10 @@
   /* mini player */
   el.miniOpen.addEventListener("click", function () { openFullPlayer(true); });
   el.miniPlay.addEventListener("click", function () { engine.toggle(); });
+
+  [el.miniDownload, el.fpDownload].forEach(function (anchor) {
+    anchor.addEventListener("click", function () { report("download", engine.track()); });
+  });
 
   /* full player */
   el.fpClose.addEventListener("click", function () { openFullPlayer(false); });
