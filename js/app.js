@@ -22,6 +22,7 @@
       archive: "Personal archive",
       nowPlaying: "NOW PLAYING", nowSingle: "SINGLE", nowAlbum: "ALBUM TRACK",
       download: "DOWNLOAD",
+      artCaption: "ANALOG ARCHIVE",
       langBtn: "FA",
       tracksOne: "1 track", tracksMany: "%d tracks"
     },
@@ -36,6 +37,7 @@
       archive: "آرشیو شخصی",
       nowPlaying: "در حال پخش", nowSingle: "تک‌آهنگ", nowAlbum: "قطعهٔ آلبوم",
       download: "دانلود",
+      artCaption: "آرشیو آنالوگ",
       langBtn: "EN",
       tracksOne: "۱ آهنگ", tracksMany: "%d آهنگ"
     }
@@ -417,6 +419,7 @@
 
   function setPlaying(playing) {
     state.playing = playing;
+    if (el.fp) el.fp.classList.toggle("is-playing", playing);
     [el.miniPlay, el.fpPlay].forEach(function (btn) {
       if (!btn) return;
       btn.classList.toggle("is-playing", playing);

@@ -61,6 +61,17 @@ body{
 
 body.is-player-open{overflow:hidden}
 
+/* vintage print grain over everything (very quiet) */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:80;
+  pointer-events:none;
+  opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 img{display:block;max-width:100%}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
@@ -236,7 +247,34 @@ html[lang="fa"] .fp-artist{font-family:inherit}
 
 /* ---------- hero ---------- */
 .hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
   padding:26px 0 22px;
+}
+.hero__text{min-width:0}
+.hero__art{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  flex:none;
+}
+.hero__art-caption{
+  writing-mode:vertical-rl;
+  color:var(--muted);
+  font-size:9.5px;
+  font-weight:600;
+  letter-spacing:.32em;
+  padding-bottom:4px;
+  white-space:nowrap;
+}
+html[lang="fa"] .hero__art-caption{letter-spacing:.08em;font-family:"Shabnam","Vazirmatn",sans-serif}
+.hero__svg{
+  width:112px;
+  height:auto;
+  display:block;
+  opacity:.96;
 }
 .hero__title{
   margin:0;
@@ -378,6 +416,9 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   display:flex;
   align-items:center;
   gap:2px;
+  flex:none;
+  position:relative;
+  z-index:1;
 }
 .track__play{
   width:46px;height:46px;
@@ -560,6 +601,21 @@ html[lang="fa"] .fp-artist{font-family:inherit}
   justify-content:space-between;
   gap:12px;
 }
+.fp-top-mid{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.fp-reel svg{
+  width:19px;height:19px;
+  display:block;
+}
+.fp-reel .r{fill:none;stroke:var(--muted);stroke-width:1.5}
+.fp-reel .h{fill:var(--muted)}
+.full-player.is-playing .fp-reel svg{animation:reelspin 2.6s linear infinite}
+.full-player.is-playing .fp-reel .r{stroke:var(--accent)}
+.full-player.is-playing .fp-reel .h{fill:var(--accent)}
+@keyframes reelspin{to{transform:rotate(360deg)}}
 .full-player__label{
   color:var(--muted);
   font-size:11px;
@@ -702,6 +758,8 @@ html[lang="fa"] .fp-artist{font-family:inherit}
 @media (min-width:600px){
   :root{--pad:26px;--gap:14px}
   .hero{padding:38px 0 26px}
+  .hero__svg{width:168px}
+  .hero__art-caption{font-size:10.5px}
   .track{
     grid-template-columns:60px minmax(0,1fr) auto;
     min-height:84px;

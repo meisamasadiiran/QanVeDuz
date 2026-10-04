@@ -21,7 +21,7 @@
 <!-- Shabnam: Persian typeface for all fa text -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css">
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261003">
 </head>
 <body>
 
@@ -54,8 +54,41 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero">
-    <h1 class="hero__title" data-i18n="heroTitle">iZ Music</h1>
-    <p class="hero__lead" data-i18n="heroLead">Listen. Download. Keep the sound.</p>
+    <div class="hero__text">
+      <h1 class="hero__title" data-i18n="heroTitle">iZ Music</h1>
+      <p class="hero__lead" data-i18n="heroLead">Listen. Download. Keep the sound.</p>
+    </div>
+
+    <div class="hero__art" aria-hidden="true">
+      <span class="hero__art-caption" data-i18n="artCaption">ANALOG ARCHIVE</span>
+      <svg class="hero__svg" viewBox="0 0 240 260">
+        <!-- tomato arch -->
+        <path d="M30 242 C16 132 54 46 148 26 L148 58 C80 76 52 140 58 242 Z" fill="#C95A3D"/>
+        <!-- film reel -->
+        <circle cx="152" cy="88" r="62" fill="#F2F0EB"/>
+        <circle cx="152" cy="52" r="14" fill="#20201D"/>
+        <circle cx="118" cy="107" r="14" fill="#20201D"/>
+        <circle cx="186" cy="107" r="14" fill="#20201D"/>
+        <circle cx="152" cy="88" r="12" fill="#20201D"/>
+        <circle cx="152" cy="88" r="4.5" fill="#C95A3D"/>
+        <!-- tape ribbon -->
+        <path d="M152 150 C142 168 122 172 110 190" stroke="#F2F0EB" stroke-width="5" fill="none" opacity=".75"/>
+        <!-- cassette -->
+        <rect x="36" y="152" width="172" height="94" rx="10" fill="#F2F0EB"/>
+        <rect x="54" y="166" width="120" height="3.5" fill="#20201D" opacity=".5"/>
+        <rect x="54" y="175" width="84" height="3" fill="#20201D" opacity=".3"/>
+        <rect x="78" y="188" width="88" height="32" rx="16" fill="#20201D"/>
+        <circle cx="98" cy="204" r="10" fill="#F2F0EB"/>
+        <circle cx="98" cy="204" r="4" fill="#C95A3D"/>
+        <circle cx="146" cy="204" r="10" fill="#F2F0EB"/>
+        <circle cx="146" cy="204" r="4" fill="#C95A3D"/>
+        <circle cx="46" cy="162" r="3" fill="#20201D" opacity=".55"/>
+        <circle cx="198" cy="162" r="3" fill="#20201D" opacity=".55"/>
+        <circle cx="46" cy="236" r="3" fill="#20201D" opacity=".55"/>
+        <circle cx="198" cy="236" r="3" fill="#20201D" opacity=".55"/>
+        <path d="M92 246 h60 l-7 11 h-46 Z" fill="#F2F0EB" opacity=".92"/>
+      </svg>
+    </div>
   </section>
 
   <!-- ============ FILTERS ============ -->
@@ -120,7 +153,12 @@
       <button class="icon-btn" id="fpClose" type="button" aria-label="Close player">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
       </button>
-      <span class="full-player__label" id="fpLabel">NOW PLAYING</span>
+      <span class="fp-top-mid">
+        <span class="fp-reel" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle class="r" cx="12" cy="12" r="10"/><circle class="h" cx="12" cy="7.6" r="2.5"/><circle class="h" cx="8.1" cy="14.6" r="2.5"/><circle class="h" cx="15.9" cy="14.6" r="2.5"/></svg>
+        </span>
+        <span class="full-player__label" id="fpLabel">NOW PLAYING</span>
+      </span>
       <span class="full-player__spacer" aria-hidden="true"></span>
     </div>
 
@@ -168,7 +206,7 @@
 <audio id="audio" preload="metadata"></audio>
 
 <!-- Track data lives in library.json (edited by admin.html "Studio") -->
-<script src="js/audio-engine.js"></script>
-<script src="js/app.js"></script>
+<script src="js/audio-engine.js?v=20261003"></script>
+<script src="js/app.js?v=20261003"></script>
 </body>
 </html>
